@@ -1,8 +1,18 @@
 # manage.py
 from flask_script import Manager
 import unittest
+import coverage
 
 from app import create_app, db
+
+COV = coverage.coverage(
+    branch=True,
+    include='app/*',
+    omit=[
+        'tests/*'
+    ]
+)
+COV.start()
 
 app = create_app()
 manager = Manager(app)
@@ -25,6 +35,19 @@ def test():
         return 0
     return 1
 
+
+@manager.command
+def cov():
+    """Runs the unit tests with coverage."""
+    if not test():
+        COV.stop()
+        COV.save()
+        print('Coverage Summary:')
+        COV.report()
+        COV.html_report()
+        COV.erase()
+        return 0
+    return 1
 
 if __name__ == '__main__':
     manager.run()

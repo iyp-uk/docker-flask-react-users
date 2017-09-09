@@ -1,4 +1,5 @@
 import unittest
+import os
 from flask import current_app
 from flask_testing import TestCase
 from app import create_app
@@ -16,7 +17,7 @@ class TestDevelopmentConfig(TestCase):
         self.assertTrue(app.config['DEBUG'])
         self.assertFalse(app.config['TESTING'])
         self.assertFalse(current_app is None)
-        self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == 'postgres://postgres:postgres@postgres:5432/app')
+        self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == os.environ.get('DATABASE_URL'))
 
 
 class TestTestingConfig(TestCase):
@@ -30,7 +31,7 @@ class TestTestingConfig(TestCase):
         self.assertTrue(app.config['TESTING'])
         self.assertFalse(current_app is None)
         self.assertFalse(app.config['PRESERVE_CONTEXT_ON_EXCEPTION'])
-        self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == 'postgres://postgres:postgres@postgres:5432/app')
+        self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == os.environ.get('DATABASE_URL'))
 
 
 class TestProductionConfig(TestCase):
