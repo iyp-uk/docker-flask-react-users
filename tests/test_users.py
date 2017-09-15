@@ -1,12 +1,13 @@
 import json
+import datetime
 from tests.base import BaseTestCase
 from app.api.models import User
 from app import db
 
 
-def add_user(username, email):
+def add_user(username, email, created_at=datetime.datetime.utcnow()):
     """Adds a single user"""
-    user = User(username=username, email=email)
+    user = User(username=username, email=email, created_at=created_at)
     db.session.add(user)
     db.session.commit()
     return user
@@ -127,8 +128,9 @@ class TestUserService(BaseTestCase):
 
     def test_get_users(self):
         """Ensure we can retrieve all users"""
+        created = datetime.datetime.utcnow() + datetime.timedelta(-30)
         add_user('testuser', 'user@example.com')
-        add_user('testuser2', 'user2@example.com')
+        add_user('testuser2', 'user2@example.com', created)
         with self.client:
             response = self.client.get('/users')
             data = json.loads(response.data.decode())
