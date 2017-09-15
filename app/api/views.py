@@ -24,7 +24,7 @@ def ping_pong():
 @users_blueprint.route('/users', methods=['POST'])
 def add_user():
     """Add a user to the database."""
-    if 'application/json' != request.content_type:
+    if 'application/json' not in request.content_type:
         username = request.form['username']
         email = request.form['email']
         db.session.add(User(username=username, email=email))
