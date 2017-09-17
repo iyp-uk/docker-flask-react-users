@@ -13,6 +13,7 @@ So that it remembers some things for you, like:
 * Environment variables
     * `APP_SETTINGS`: `app.config.DevelopmentConfig`
     * `DATABASE_URL`: `postgres://postgres:postgres@postgres:5432/app`
+    * `TEST_DATABASE_URL`: `postgres://postgres:postgres@postgres_test:5432/app`
 
 ## Run it
 
@@ -20,11 +21,15 @@ First launch your database service:
 ```console
 $ docker run --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app -d postgres:alpine
 ```
+And the one for tests:
+```console
+$ docker run --name postgres_test -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app -d postgres:alpine
+```
 
 Then build and launch your container (through IDE is one click...)
 ```console
 $ docker build -t docker-flask-react-users-service .
-$ docker run -p 5000:5000 --name users --link postgres -e APP_SETTINGS=app.config.DevelopmentConfig -e DATABASE_URL=postgres://postgres:postgres@postgres:5432/app -d docker-flask-react-users-service
+$ docker run -p 5000:5000 --name users --link postgres --link postgres_test -e APP_SETTINGS=app.config.DevelopmentConfig -e DATABASE_URL=postgres://postgres:postgres@postgres:5432/app -d docker-flask-react-users-service
 ```
 
 You can eventually initialise the DB too:

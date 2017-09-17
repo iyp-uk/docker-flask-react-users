@@ -12,6 +12,7 @@ install:
 before_script:
   - export APP_SETTINGS="app.config.TestingConfig"
   - export DATABASE_URL=postgresql://postgres:@localhost/users
+  - export TEST_DATABASE_URL=postgresql://postgres:@localhost/users
   - psql -c 'create database users;' -U postgres
 
 script:
