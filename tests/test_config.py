@@ -31,7 +31,7 @@ class TestTestingConfig(TestCase):
         self.assertTrue(app.config['TESTING'])
         self.assertFalse(current_app is None)
         self.assertFalse(app.config['PRESERVE_CONTEXT_ON_EXCEPTION'])
-        self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == os.environ.get('DATABASE_URL'))
+        self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == os.environ.get('TEST_DATABASE_URL'))
 
 
 class TestProductionConfig(TestCase):

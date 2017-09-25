@@ -27,7 +27,8 @@ def add_user():
     if 'application/json' not in request.content_type:
         username = request.form['username']
         email = request.form['email']
-        db.session.add(User(username=username, email=email))
+        password = request.form['password']
+        db.session.add(User(username=username, email=email, password=password))
         db.session.commit()
         users = User.query.order_by(User.created_at.desc()).all()
         return render_template('users.html', users=users)
@@ -41,10 +42,11 @@ def add_user():
         return jsonify(response_object), 400
     username = post_data.get('username')
     email = post_data.get('email')
+    password = post_data.get('password')
     try:
         user = User.query.filter_by(email=email).first()
         if not user:
-            db.session.add(User(username=username, email=email))
+            db.session.add(User(username=username, email=email, password=password))
             db.session.commit()
             response_object = {
                 'status': 'success',
@@ -57,7 +59,7 @@ def add_user():
                 'message': 'Sorry. That email already exists.'
             }
             return jsonify(response_object), 409
-    except exc.IntegrityError:
+    except (exc.IntegrityError, ValueError):
         db.session.rollback()
         response_object = {
             'status': 'fail',
