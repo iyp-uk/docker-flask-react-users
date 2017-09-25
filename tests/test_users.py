@@ -22,7 +22,8 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps(dict(
                     username='testuser',
-                    email='user@example.com'
+                    email='user@example.com',
+                    password='test'
                 )),
                 content_type='application/json',
             )
@@ -67,7 +68,8 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps(dict(
                     username='testuser',
-                    email='user@example.com'
+                    email='user@example.com',
+                    password='test'
                 )),
                 content_type='application/json',
             )
@@ -76,7 +78,8 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps(dict(
                     username='testuser',
-                    email='user@example.com'
+                    email='user@example.com',
+                    password='test'
                 )),
                 content_type='application/json',
             )
@@ -88,7 +91,7 @@ class TestUserService(BaseTestCase):
     def test_get_user(self):
         """Ensure we can get a single user based on its ID"""
         # add a user for this test.
-        user = add_user('testuser', 'user@example.com')
+        user = add_user('testuser', 'user@example.com', 'test')
         with self.client:
             response = self.client.get(f'/users/{user.id}')
             data = json.loads(response.data.decode())
@@ -100,7 +103,7 @@ class TestUserService(BaseTestCase):
 
     def test_get_user_invalid_id(self):
         """Ensures an error is thrown when the user id is not found"""
-        user = add_user('testuser', 'user@example.com')
+        user = add_user('testuser', 'user@example.com', 'test')
         with self.client:
             response = self.client.get(f'/users/{user.id + 1}')
             data = json.loads(response.data.decode())
@@ -120,8 +123,8 @@ class TestUserService(BaseTestCase):
     def test_get_users(self):
         """Ensure we can retrieve all users"""
         created = datetime.datetime.utcnow() + datetime.timedelta(-30)
-        add_user('testuser', 'user@example.com')
-        add_user('testuser2', 'user2@example.com', created)
+        add_user('testuser', 'user@example.com', 'test')
+        add_user('testuser2', 'user2@example.com', 'test', created)
         with self.client:
             response = self.client.get('/users')
             data = json.loads(response.data.decode())
@@ -137,8 +140,8 @@ class TestUserService(BaseTestCase):
 
     def test_get_users_html(self):
         """Ensure we can retrieve all users in HTML"""
-        add_user('testuser', 'user@example.com')
-        add_user('testuser2', 'user2@example.com')
+        add_user('testuser', 'user@example.com', 'test')
+        add_user('testuser2', 'user2@example.com', 'test')
         with self.client:
             response = self.client.get('/users', headers={'Accept': 'text/html'})
             self.assertEqual(response.status_code, 200)
@@ -160,7 +163,11 @@ class TestUserService(BaseTestCase):
         with self.client:
             response = self.client.post(
                 '/users',
-                data=dict(username='testuser', email='user@example.com'),
+                data=dict(
+                    username='testuser',
+                    email='user@example.com',
+                    password='test'
+                ),
                 follow_redirects=True
             )
             self.assertEqual(response.status_code, 200)
