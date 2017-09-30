@@ -17,6 +17,14 @@ class BaseTestCase(TestCase):
         db.session.remove()
         db.drop_all()
 
+    def post_user(self, data):
+        with self.client:
+            return self.client.post(
+                '/users',
+                data=data,
+                content_type='application/json'
+            )
+
     def register(self, data):
         with self.client:
             return self.client.post(
@@ -25,10 +33,10 @@ class BaseTestCase(TestCase):
                 content_type='application/json'
             )
 
-    def post_user(self, data):
+    def login(self, data):
         with self.client:
             return self.client.post(
-                '/users',
+                '/auth/login',
                 data=data,
                 content_type='application/json'
             )

@@ -3,6 +3,7 @@ import datetime
 import jwt
 from flask import current_app
 from sqlalchemy import exc
+from sqlalchemy.orm.exc import NoResultFound
 
 from app import db, bcrypt
 
@@ -17,8 +18,6 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, username, email, password, created_at=datetime.datetime.utcnow()):
-        if not username or not email or not password:
-            raise ValueError
         self.username = username
         self.email = email
         self.password = bcrypt.generate_password_hash(
@@ -27,12 +26,26 @@ class User(db.Model):
         self.created_at = created_at
 
     def save(self):
+        if not self.username or not self.email or not self.password:
+            raise ValueError
         try:
             db.session.add(self)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             raise
+
+    @staticmethod
+    def login(email, password):
+        if not email or not password:
+            raise ValueError
+        try:
+            user = User.query.filter_by(email=email).one()
+        except NoResultFound:
+            raise
+        if not bcrypt.check_password_hash(user.password, password):
+            raise NoResultFound
+        return user
 
     def get_data(self):
         return {

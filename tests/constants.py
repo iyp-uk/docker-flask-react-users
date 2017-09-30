@@ -1,4 +1,7 @@
 USER_BASIC = dict(username='test', email='test@test.com', password='test')
+LOGIN_USER_BASIC = dict(email='test@test.com', password='test')
+LOGIN_USER_BASIC_NO_EMAIL = dict(password='test')
+LOGIN_USER_BASIC_NO_PASSWORD = dict(email='test@test.com')
 USER_INVALID_STRUCTURE = dict(email='test@test.com')
 USER_NO_USERNAME = dict(username='', email='test@test.com', password='test')
 USER_NO_EMAIL = dict(username='test', email='', password='test')

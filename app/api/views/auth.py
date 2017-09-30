@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import exc
+from sqlalchemy.orm.exc import NoResultFound
 
 from app.api.models import User
 
@@ -28,4 +29,28 @@ def register_user():
                 'status': 'error',
                 'message': 'Invalid payload.'
             }
+        return jsonify(response_object), 400
+
+
+@auth_blueprint.route('/auth/login', methods=['POST'])
+def login_user():
+    try:
+        user = User.login(**request.get_json())
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully logged in.',
+            'token': user.encode_auth_token(user.id).decode()
+        }
+        return jsonify(response_object), 200
+    except NoResultFound:
+        response_object = {
+            'status': 'error',
+            'message': 'Invalid username or password.'
+        }
+        return jsonify(response_object), 404
+    except (TypeError, ValueError) as e:
+        response_object = {
+            'status': 'error',
+            'message': 'Invalid payload.'
+        }
         return jsonify(response_object), 400
