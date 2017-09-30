@@ -16,3 +16,19 @@ class BaseTestCase(TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+
+    def register(self, data):
+        with self.client:
+            return self.client.post(
+                '/auth/register',
+                data=data,
+                content_type='application/json'
+            )
+
+    def post_user(self, data):
+        with self.client:
+            return self.client.post(
+                '/users',
+                data=data,
+                content_type='application/json'
+            )

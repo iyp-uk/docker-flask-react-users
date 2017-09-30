@@ -2,6 +2,7 @@ import datetime
 
 import jwt
 from flask import current_app
+from sqlalchemy import exc
 
 from app import db, bcrypt
 
@@ -16,12 +17,47 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, username, email, password, created_at=datetime.datetime.utcnow()):
+        if not username or not email or not password:
+            raise ValueError
         self.username = username
         self.email = email
         self.password = bcrypt.generate_password_hash(
             password, current_app.config.get('BCRYPT_LOG_ROUNDS')
         ).decode()
         self.created_at = created_at
+
+    def save(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            raise
+
+    def get_data(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'created_at': self.created_at
+        }
+
+    @staticmethod
+    def get_by_id(user_id):
+        """Gets a user by its id"""
+        try:
+            user = User.query.get(user_id)
+        except exc.DataError:
+            return None
+        return None if not user else user.get_data()
+
+    @staticmethod
+    def get_all_users():
+        """Returns all users"""
+        users_list = []
+        for user in User.query.order_by(User.created_at.desc()).all():
+            users_list.append(user.get_data())
+        return users_list
 
     @staticmethod
     def encode_auth_token(user_id):
