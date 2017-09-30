@@ -10,6 +10,7 @@ class BaseConfig:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SECRET_KEY = 'my_precious'
     BCRYPT_LOG_ROUNDS = 13
+    JWT_EXPIRATION_TIME_SECONDS = os.environ.get('JWT_EXPIRATION_TIME_SECONDS', 3600)
 
 
 class DevelopmentConfig(BaseConfig):
@@ -24,6 +25,7 @@ class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL')
     BCRYPT_LOG_ROUNDS = 4
+    JWT_EXPIRATION_TIME_SECONDS = 1
 
 
 class ProductionConfig(BaseConfig):

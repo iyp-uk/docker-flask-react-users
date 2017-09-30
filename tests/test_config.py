@@ -18,6 +18,8 @@ class TestDevelopmentConfig(TestCase):
         self.assertFalse(app.config['TESTING'])
         self.assertFalse(current_app is None)
         self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == os.environ.get('DATABASE_URL'))
+        self.assertTrue(
+            app.config['JWT_EXPIRATION_TIME_SECONDS'] == os.environ.get('JWT_EXPIRATION_TIME_SECONDS ', 3600))
 
 
 class TestTestingConfig(TestCase):
@@ -32,6 +34,7 @@ class TestTestingConfig(TestCase):
         self.assertFalse(current_app is None)
         self.assertFalse(app.config['PRESERVE_CONTEXT_ON_EXCEPTION'])
         self.assertTrue(app.config['SQLALCHEMY_DATABASE_URI'] == os.environ.get('TEST_DATABASE_URL'))
+        self.assertTrue(app.config['JWT_EXPIRATION_TIME_SECONDS'] == 1)
 
 
 class TestProductionConfig(TestCase):
@@ -43,6 +46,8 @@ class TestProductionConfig(TestCase):
         self.assertTrue(app.config['SECRET_KEY'] == 'my_precious')
         self.assertFalse(app.config['DEBUG'])
         self.assertFalse(app.config['TESTING'])
+        self.assertTrue(
+            app.config['JWT_EXPIRATION_TIME_SECONDS'] == os.environ.get('JWT_EXPIRATION_TIME_SECONDS ', 3600))
 
 
 if __name__ == '__main__':
