@@ -72,3 +72,21 @@ def logout_user():
             'message': 'Successfully logged out.'
         }
         return jsonify(response_object), 200
+
+
+@auth_blueprint.route('/auth/status', methods=['GET'])
+def user_status():
+    headers_token = User.get_token_from_authorization_header(request.headers.get('Authorization'))
+    response = User.decode_auth_token(headers_token)
+    if isinstance(response, str):
+        response_object = {
+            'status': 'error',
+            'message': response
+        }
+        return jsonify(response_object), 401
+    else:
+        response_object = {
+            'status': 'success',
+            'data': User.get_by_id(response)
+        }
+        return jsonify(response_object), 200

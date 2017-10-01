@@ -160,3 +160,33 @@ class TestAuth(BaseTestCase):
             self.assertTrue(data['message'] == 'Invalid token.')
             self.assertFalse('token' in data)
             self.assertEqual(response.status_code, 401)
+
+    def test_user_status(self):
+        user = User(**USER_BASIC)
+        user.save()
+        response_login = self.login(json.dumps(LOGIN_USER_BASIC))
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers=dict(Authorization='Bearer ' + json.loads(response_login.data.decode())['token'])
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual('success', data['status'])
+            self.assertEqual('test', data['data']['username'])
+            self.assertEqual('test@test.com', data['data']['email'])
+            self.assertEqual(user.id, data['data']['id'])
+            self.assertTrue(data['data']['active'] is True)
+            self.assertTrue(data['data']['created_at'])
+            self.assertFalse('password' in data)
+            self.assertEqual(200, response.status_code)
+
+    def test_user_status_invalid_token(self):
+        with self.client:
+            response = self.client.get(
+                '/auth/status',
+                headers=dict(Authorization='Bearer invalid')
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual('error', data['status'])
+            self.assertIn('Invalid token', data['message'])
+            self.assertEqual(401, response.status_code)
