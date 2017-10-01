@@ -28,7 +28,9 @@ def create_app():
     migrate.init_app(app, db)
 
     # register blueprints
-    from app.api.views import users_blueprint
+    from app.api.views.users import users_blueprint
     app.register_blueprint(users_blueprint)
+    from app.api.views.auth import auth_blueprint
+    app.register_blueprint(auth_blueprint)
 
     return app
