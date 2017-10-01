@@ -54,3 +54,21 @@ def login_user():
             'message': 'Invalid payload.'
         }
         return jsonify(response_object), 400
+
+
+@auth_blueprint.route('/auth/logout', methods=['GET'])
+def logout_user():
+    headers_token = User.get_token_from_authorization_header(request.headers.get('Authorization'))
+    response = User.decode_auth_token(headers_token)
+    if isinstance(response, str):
+        response_object = {
+            'status': 'error',
+            'message': response
+        }
+        return jsonify(response_object), 401
+    else:
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully logged out.'
+        }
+        return jsonify(response_object), 200

@@ -52,7 +52,8 @@ class User(db.Model):
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'created_at': self.created_at
+            'created_at': self.created_at,
+            'active': self.active
         }
 
     @staticmethod
@@ -71,6 +72,14 @@ class User(db.Model):
         for user in User.query.order_by(User.created_at.desc()).all():
             users_list.append(user.get_data())
         return users_list
+
+    @staticmethod
+    def get_token_from_authorization_header(authorization_header):
+        try:
+            return authorization_header.split(" ")[1]
+        except Exception:
+            return 'Invalid authorization header.'
+
 
     @staticmethod
     def encode_auth_token(user_id):
@@ -102,6 +111,6 @@ class User(db.Model):
         except jwt.ExpiredSignatureError:
             return 'Expired token, please login again.'
         except jwt.InvalidTokenError:
-            return 'Invalid token'
+            return 'Invalid token.'
         except Exception:
             return 'Could not decode token.'

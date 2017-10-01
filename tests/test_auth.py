@@ -1,5 +1,7 @@
 import json
 
+import time
+
 from app.api.models import User
 from tests.base import BaseTestCase
 from tests.constants import *
@@ -104,3 +106,57 @@ class TestAuth(BaseTestCase):
         self.assertTrue(data['message'] == 'Invalid payload.')
         self.assertTrue(response.content_type == 'application/json')
         self.assertEqual(response.status_code, 400)
+
+    def test_get_token_from_authorization_header(self):
+        user = User(**USER_BASIC)
+        user.save()
+        token = User.encode_auth_token(user.id)
+        retrieved_token = User.get_token_from_authorization_header('Bearer ' + token.decode())
+        self.assertEqual(token.decode(), retrieved_token)
+
+    def test_get_token_from_authorization_header_malformed(self):
+        user = User(**USER_BASIC)
+        user.save()
+        token = User.encode_auth_token(user.id)
+        retrieved_token = User.get_token_from_authorization_header(token.decode())
+        self.assertEqual('Invalid authorization header.', retrieved_token)
+
+    def test_user_logout(self):
+        User(**USER_BASIC).save()
+        response_login = self.login(json.dumps(LOGIN_USER_BASIC))
+        with self.client:
+            response = self.client.get(
+                '/auth/logout',
+                headers=dict(Authorization='Bearer ' + json.loads(response_login.data.decode())['token'])
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'success')
+            self.assertTrue(data['message'] == 'Successfully logged out.')
+            self.assertFalse('token' in data)
+            self.assertEqual(response.status_code, 200)
+
+    def test_user_logout_invalid_expired_token(self):
+        User(**USER_BASIC).save()
+        response_login = self.login(json.dumps(LOGIN_USER_BASIC))
+        with self.client:
+            time.sleep(2)
+            response = self.client.get(
+                '/auth/logout',
+                headers=dict(Authorization='Bearer ' + json.loads(response_login.data.decode())['token'])
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'error')
+            self.assertTrue(data['message'] == 'Expired token, please login again.')
+            self.assertFalse('token' in data)
+            self.assertEqual(response.status_code, 401)
+
+    def test_user_logout_invalid_token(self):
+        with self.client:
+            response = self.client.get(
+                '/auth/logout',
+                headers=dict(Authorization='Bearer invalid'))
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'error')
+            self.assertTrue(data['message'] == 'Invalid token.')
+            self.assertFalse('token' in data)
+            self.assertEqual(response.status_code, 401)
