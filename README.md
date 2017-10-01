@@ -1,5 +1,6 @@
 # docker-flask-react-users
-Users service for the docker-flask-react project.
+
+Backend users service for the [docker-flask-react](https://github.com/iyp-uk/docker-flask-react) project.
 
 ## Set up your IDE
 
@@ -43,3 +44,9 @@ $ docker exec -it users python manage.py test
 ```
 
 From that point on, you're good to go!
+
+## Test Coverage
+
+```console
+$ docker exec -it users python manage.py cov
+```
