@@ -1,3 +1,6 @@
+import time
+
+import jwt.exceptions
 from sqlalchemy.exc import IntegrityError
 
 from app import db
@@ -42,3 +45,26 @@ class TestUserModel(BaseTestCase):
         user_one = add_user('test', 'test@test.com', 'test')
         user_two = add_user('test2', 'test@test2.com', 'test')
         self.assertNotEqual(user_one.password, user_two.password)
+
+    def test_encode_auth_token(self):
+        """Ensures the auth token is encoded"""
+        user = add_user('test', 'test@test.com', 'test')
+        auth_token = user.encode_auth_token(user.id)
+        self.assertIsInstance(auth_token, bytes)
+
+    def test_decode_auth_token(self):
+        """Ensures the auth token can be decoded"""
+        user = add_user('test', 'test@test.com', 'test')
+        auth_token = user.encode_auth_token(user.id)
+        self.assertTrue(user.decode_auth_token(auth_token), user.id)
+
+    def test_invalid_auth_token(self):
+        """Ensures an invalid token is indentified as such"""
+        self.assertIn('Invalid token', User.decode_auth_token('invalid'))
+
+    def test_expired_auth_token(self):
+        """Ensures an expired token is identified as such"""
+        user = add_user('test', 'test@test.com', 'test')
+        auth_token = user.encode_auth_token(user.id)
+        time.sleep(3)
+        self.assertEqual(str(user.decode_auth_token(auth_token)), 'Expired token, please login again.')
